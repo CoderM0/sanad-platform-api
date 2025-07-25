@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\MdSessionResource;
 use App\Models\Doctor;
 use App\Models\MdSession;
 use App\Models\Patient;
+use App\Models\User;
+use App\Notifications\NewAppointmentRequested;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -55,16 +58,17 @@ class MdSessionController extends Controller
         }
 
 
-        $appointment = MdSession::create([
+        $md_session = MdSession::create([
             'patient_id' => Auth::id(),
             'doctor_id' => $validated['doctor_id'],
             'scheduled_at' => $scheduledAt,
             'status' => "pending"
         ]);
-
+        $doctor = Doctor::find($validated['doctor_id']);
+        $doctor->user->notify(new NewAppointmentRequested($md_session));
         return response()->json([
-            'message' => 'تم حجز الموعد بنجاح.',
-            'appointment' => $appointment,
+            'message' => 'تم إرسال الطلب بنجاح، بانتظار موافقة الطبيب.',
+            'appointment' => $md_session,
         ]);
     }
 

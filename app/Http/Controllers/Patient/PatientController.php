@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\MdSessionResource;
 use App\Http\Resources\PatientResource;
+use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,5 +64,12 @@ class PatientController extends Controller
             'message' => 'تم تحديث المعلومات بنجاح.',
             'patient' => new PatientResource($patient)
         ]);
+    }
+    public function my_sessions()
+    {  // return response()->json($md_session);
+        $patient = Auth::user()->patient;
+        $md_session = $patient->md_sessions;
+
+        return MdSessionResource::collection($md_session);
     }
 }

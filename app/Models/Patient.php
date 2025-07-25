@@ -11,4 +11,8 @@ class Patient extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function md_sessions()
+    {
+        return $this->hasMany(MdSession::class);
+    }
 }
