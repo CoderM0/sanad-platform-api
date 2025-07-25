@@ -21,6 +21,7 @@ class DoctorResource extends JsonResource
             'last_name' => $this->user->last_name,
             'avatar' => $this->user->avatar,
             'email' => $this->user->email,
+            'role' => $this->user->role,
             'phone_number' => $this->phone_number,
             'achievements' => $this->achievements,
             'specialization' => $this->specialization,

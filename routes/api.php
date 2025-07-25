@@ -17,6 +17,7 @@ Route::middleware(['auth:sanctum', 'role:patient'])->prefix("/patient")->group(f
     Route::post('/reserve', [MdSessionController::class, 'store']);
     Route::get('/doctor/{doctorId}/free', [MdSessionController::class, 'free_times']);
     Route::get('/sessions', [PatientController::class, 'my_sessions']);
+    Route::get('/doctors', [PatientController::class, 'doctors']);
 });
 
 Route::middleware(['auth:sanctum'])->controller(NotificationController::class)->group(function () {

@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Patient;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DoctorResource;
 use App\Http\Resources\MdSessionResource;
 use App\Http\Resources\PatientResource;
+use App\Models\Doctor;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -71,5 +73,10 @@ class PatientController extends Controller
         $md_session = $patient->md_sessions;
 
         return MdSessionResource::collection($md_session);
+    }
+    public function doctors()
+    {
+        $doctors = Doctor::all();
+        return DoctorResource::collection($doctors);
     }
 }
