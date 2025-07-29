@@ -15,4 +15,12 @@ class Doctor extends Model
     {
         return $this->hasMany(MdSession::class);
     }
+    public function patients()
+    {
+        return $this->belongsToMany(Patient::class, 'md_sessions');
+    }
+    public function ratings()
+    {
+        return $this->hasMany(Rating::class);
+    }
 }
