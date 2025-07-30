@@ -59,7 +59,7 @@ class MdSessionController extends Controller
 
 
         $md_session = MdSession::create([
-            'patient_id' => Auth::id(),
+            'patient_id' => Auth::user()->patient->id,
             'doctor_id' => $validated['doctor_id'],
             'scheduled_at' => $scheduledAt,
             'status' => "pending"
