@@ -39,7 +39,7 @@ class SessionStatusNotification extends Notification
     public function toDatabase($notifiable)
     {
         return [
-            'message' => "جلستك لدى الطبيب $this->doctor_name $this->message",
+            'message' => "جلستك لدى الطبيب $this->doctor_name تم $this->message",
             'md_session_id' => $this->md_session->id,
             'status' => $this->md_session->status,
 

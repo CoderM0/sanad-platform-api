@@ -6,8 +6,6 @@ use App\Http\Controllers\MdSessionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Patient\PatientController;
 use App\Http\Controllers\RatingController;
-use App\Http\Resources\RatingResource;
-use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -40,6 +38,7 @@ Route::middleware(['auth:sanctum'])->controller(NotificationController::class)->
 Route::middleware(['auth:sanctum', 'role:doctor'])->prefix("/doctor")->group(function () {
     Route::get('/sessions', [DoctorController::class, 'my_sessions']);
     Route::get('/ratings', [RatingController::class, 'my_ratings']);
+    Route::post('/update', [DoctorController::class, 'update_info']);
     Route::post('/sessions/{session_id}/accept', [DoctorController::class, 'accept_session']);
     Route::post('/sessions/{session_id}/decline', [DoctorController::class, 'decline_session']);
     Route::post('/sessions/{session_id}/modify', [DoctorController::class, 'change_session_time']);
@@ -49,6 +48,10 @@ Route::middleware(['auth:sanctum', 'role:doctor'])->prefix("/doctor")->group(fun
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('/admin')->group(function () {
     Route::get("/doctors", [AdminController::class, 'get_all_doctors']);
     Route::post("/doctors/add", [AdminController::class, 'add_doctor']);
+    Route::post("/doctors/{doctor_id}/update", [AdminController::class, 'update_doctor']);
+    Route::delete("/doctors/{doctor_id}/delete", [AdminController::class, 'delete_doctor']);
+    Route::get("/doctors/{doctor_id}/patients", [AdminController::class, 'doc_patients']);
+    Route::get("/doctors/patients", [AdminController::class, 'docs_with_patients']);
 });
 
 

@@ -17,19 +17,27 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
+        // $user =  User::create([
+        //     'first_name' => 'Test Docotr',
+        //     'last_name' => 'Test Docotr',
+        //     'email' => 'doc@gmail.com',
+        //     'password' => Hash::make('12345678'),
+        //     'avatar' => 'somethig',
+        //     'role' => 'doctor',
+        // ]);
+        // Doctor::create([
+        //     'user_id' => $user->id,
+        //     'achievements' => 'something',
+        //     'specialization' => 'somthing else',
+        //     'phone_number' => 'wow'
+        // ]);
         $user =  User::create([
-            'first_name' => 'Test Docotr',
-            'last_name' => 'Test Docotr',
-            'email' => 'doc@gmail.com',
+            'first_name' => 'Admin',
+            'last_name' => 'Admin',
+            'email' => 'admin@gmail.com',
             'password' => Hash::make('12345678'),
             'avatar' => 'somethig',
-            'role' => 'doctor',
-        ]);
-        Doctor::create([
-            'user_id' => $user->id,
-            'achievements' => 'something',
-            'specialization' => 'somthing else',
-            'phone_number' => 'wow'
+            'role' => 'admin',
         ]);
     }
 }

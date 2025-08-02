@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\DocPatientsResource;
 use App\Http\Resources\DoctorResource;
+use App\Http\Resources\PatientResource;
 use App\Models\Doctor;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -11,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 
@@ -106,5 +109,70 @@ class AdminController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+    public function update_doctor(Request $request, $doctor_id)
+    {
+        $doctor = Doctor::find($doctor_id);
+        $user = $doctor->user;
+        $validatedUser = $request->validate([
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'password' => ['nullable', Password::defaults()],
+            'email' => [
+                'nullable',
+                'string',
+                'email',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'email.email' => 'البريد الإلكتروني غير صالح.',
+            'email.unique' => 'هذا البريد مستخدم مسبقاً.',
+            'avatar.image' => 'الصورة يجب أن تكون من نوع صورة.',
+        ]);
+
+        $validatedDoctor = $request->validate([
+            'achievements' => "nullable|string",
+            'specialization' => 'nullable|string',
+            'phone_number' => 'nullable|string|max:20',
+        ], [
+            'achievements.string' => 'يجب ان تكون الانجازات نصا.',
+            'specialization.string' => 'الاختصاص يجب ان يكون نصا',
+        ]);
+
+        if ($request->hasFile('avatar')) {
+            Storage::disk('public')->delete($user->avatar);
+            $path = Storage::disk('public')->put('/users', $request->file('avatar'));
+            $validatedUser['avatar'] = $path;
+        }
+        if ($request->has("password")) {
+            $validatedUser['password'] = Hash::make($request->string('password'));
+        }
+        $user->update($validatedUser);
+        $doctor->update($validatedDoctor);
+
+        return response()->json([
+            'message' => 'تم تحديث المعلومات بنجاح.',
+            'doctor' => new DoctorResource($doctor)
+        ]);
+    }
+    public function delete_doctor($doctor_id)
+    {
+        $doctor = Doctor::find($doctor_id);
+        $user = $doctor->user;
+        Storage::disk("public")->delete($user->avatar);
+        $user->delete();
+        return response()->json(['message' => "تم الحذف بنجاح"]);
+    }
+    public function doc_patients($doctor_id)
+    {
+        $doctor = Doctor::find($doctor_id);
+        $patients = $doctor->patients;
+        return PatientResource::collection($patients);
+    }
+    public function docs_with_patients()
+    {
+        $doctors = Doctor::with('patients')->get();
+        return DocPatientsResource::collection($doctors);
     }
 }
