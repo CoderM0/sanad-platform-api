@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Resources\DocPatientsResource;
 use App\Http\Resources\DoctorResource;
 use App\Http\Resources\PatientResource;
+use App\Models\ContactInfo;
 use App\Models\Doctor;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -174,5 +175,28 @@ class AdminController extends Controller
     {
         $doctors = Doctor::with('patients')->get();
         return DocPatientsResource::collection($doctors);
+    }
+    public function add_contact(Request $request)
+    {
+        $validated = $request->validate([
+            'contact_name' => 'required|string',
+            'contact_value' => 'required|string',
+        ]);
+        ContactInfo::create($validated);
+        return response()->json(['message' => 'تم الاضافة بنجاح']);
+    }
+    public function edit_contact(Request $request, ContactInfo $contact)
+    {
+        $validated = $request->validate([
+            'contact_name' => 'nullable|string',
+            'contact_value' => 'nullable|string',
+        ]);
+        $contact->update($validated);
+        return response()->json(['message' => 'تم التعديل بنجاح']);
+    }
+    public function delete_contact(ContactInfo $contact)
+    {
+        $contact->delete();
+        return response()->json(['message' => 'تم الحذف بنجاح']);
     }
 }

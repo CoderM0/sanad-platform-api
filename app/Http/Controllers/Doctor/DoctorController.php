@@ -9,8 +9,10 @@ use App\Http\Resources\PatientResource;
 use App\Http\Resources\RatingResource;
 use App\Models\MdSession;
 use App\Models\Patient;
+use App\Models\TestResult;
 use App\Models\User;
 use App\Notifications\SessionStatusNotification;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,6 +24,7 @@ class DoctorController extends Controller
 {
     public function my_sessions()
     {
+        MdSession::where('scheduled_at', '<', Carbon::now())->delete();
         $doctor = Auth::user()->doctor;
         $md_session = $doctor->md_sessions;
 
@@ -45,11 +48,12 @@ class DoctorController extends Controller
         $doctor = Auth::user()->doctor;
         $md_session = MdSession::find($session_id);
         if ($doctor->id != $md_session->doctor_id) {
-            abort(403, 'not authorized to accept this session ');
+            abort(403, 'لا يمكنك رفض جلسة ليست من جلساتك ');
         } else {
-            $md_session->update(['status' => 'declined']);
+            $tmp_md_session = $md_session;
+            $md_session->delete();
             $patient = Patient::find($md_session->patient_id);
-            $patient->user->notify(new SessionStatusNotification($md_session, " رفضها"));
+            $patient->user->notify(new SessionStatusNotification($tmp_md_session, " رفضها"));
             return response()->json(['message' => 'تم رفض الموعد والغاؤه']);
         }
     }
@@ -108,6 +112,42 @@ class DoctorController extends Controller
         return response()->json([
             'message' => 'تم تحديث المعلومات بنجاح.',
             'doctor' => new DoctorResource($doctor)
+        ]);
+    }
+    public function getTestResults($patient_id, $test_name)
+    {
+        $patientId = $patient_id;
+        $testName = $test_name;
+
+        $doctor = Auth::user()->doctor;
+        $exists = $doctor->patients()->where('patients.id', $patient_id)->exists();
+        if (!$exists) {
+            return response()->json(['message' => 'لا تملك صلاحية عرض اختبارات احد المرضى ما لم يكن احد مرضاك']);
+        }
+        $results = TestResult::where('patient_id', $patientId)
+            ->where('test_name', $testName)
+            ->select('question', 'answer', 'result', 'result_description')
+            ->get();
+
+        if ($results->isEmpty()) {
+            return response()->json(['message' => 'لا توجد نتائج'], 404);
+        }
+
+        $answers = [];
+        $resultValue = null;
+
+        foreach ($results as $row) {
+            $answers[] = [$row->question => $row->answer];
+            $resultValue = $row->result;
+            $result_description = $row->result_description;
+        }
+
+        return response()->json([
+            'patient_id' => $patientId,
+            'test_name' => $testName,
+            'result' => $resultValue,
+            'result_description' => $result_description,
+            'answers' => $answers
         ]);
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\MdSessionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Patient\PatientController;
 use App\Http\Controllers\RatingController;
+use App\Models\ContactInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,8 @@ Route::middleware(['auth:sanctum', 'role:patient'])->prefix("/patient")->group(f
     Route::get('/doctors', [PatientController::class, 'doctors']);
     Route::post("/ratings/add", [PatientController::class, 'add_rate']);
     Route::get('/ratings', [RatingController::class, 'my_ratings']);
+    Route::post('/tests/store', [PatientController::class, 'storeTestResults']);
+    Route::get('/tests/{test_name}/show', [PatientController::class, 'getTestResults']);
 });
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/doctor/{doctor_id}/ratings', [RatingController::class, 'doctor_ratings']);
@@ -43,8 +46,11 @@ Route::middleware(['auth:sanctum', 'role:doctor'])->prefix("/doctor")->group(fun
     Route::post('/sessions/{session_id}/decline', [DoctorController::class, 'decline_session']);
     Route::post('/sessions/{session_id}/modify', [DoctorController::class, 'change_session_time']);
     Route::get('/patients', [DoctorController::class, 'my_patients']);
+    Route::get('/patients/{patient_id}/{test_name}/show', [DoctorController::class, 'getTestResults']);
 });
-
+Route::get("/contacts/all", function () {
+    return response()->json(['contacts' => ContactInfo::all()]);
+});
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('/admin')->group(function () {
     Route::get("/doctors", [AdminController::class, 'get_all_doctors']);
     Route::post("/doctors/add", [AdminController::class, 'add_doctor']);
@@ -52,12 +58,10 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('/admin')->group(funct
     Route::delete("/doctors/{doctor_id}/delete", [AdminController::class, 'delete_doctor']);
     Route::get("/doctors/{doctor_id}/patients", [AdminController::class, 'doc_patients']);
     Route::get("/doctors/patients", [AdminController::class, 'docs_with_patients']);
+    Route::post("/contacts/add", [AdminController::class, 'add_contact']);
+    Route::put("/contacts/{contact}/update", [AdminController::class, 'edit_contact']);
+    Route::delete("/contacts/{contact}/delete", [AdminController::class, 'delete_contact']);
 });
-
-
-
-
-
 
 
 

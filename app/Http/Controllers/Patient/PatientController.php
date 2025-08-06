@@ -10,9 +10,12 @@ use App\Models\Doctor;
 use App\Models\MdSession;
 use App\Models\Patient;
 use App\Models\Rating;
+use App\Models\TestResult;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -70,7 +73,8 @@ class PatientController extends Controller
         ]);
     }
     public function my_sessions()
-    {  // return response()->json($md_session);
+    {
+        MdSession::where('scheduled_at', '<', Carbon::now())->delete();
         $patient = Auth::user()->patient;
         $md_session = $patient->md_sessions;
 
@@ -129,5 +133,68 @@ class PatientController extends Controller
         ]);
 
         return response()->json(['message' => 'تم إضافة التقييم بنجاح.', 'data' => $rating], 201);
+    }
+    public function storeTestResults(Request $request)
+    {
+        $testName = $request->input('test_name');
+        $result = $request->input('result');
+        $result_description = $request->input('result_desc');
+        $answers = $request->input('answers');
+
+        $data = [];
+
+        foreach ($answers as $qa) {
+            foreach ($qa as $question => $answer) {
+                $data[] = [
+                    'test_name' => $testName,
+                    'patient_id' => Auth::user()->id,
+                    'question' => $question,
+                    'answer' => $answer,
+                    'result' => $result,
+                    "result_description" => $result_description,
+                    'updated_at' => now(),
+                    'created_at' => now()
+                ];
+            }
+        }
+
+        DB::table('test_results')->upsert(
+            $data,
+            ['patient_id', 'test_name', 'question'],
+            ['answer', 'result', 'result_description', 'updated_at']
+        );
+
+        return response()->json(['message' => 'تم الحفظ بنجاح']);
+    }
+    public function getTestResults($test_name)
+    {
+        $patientId = Auth::user()->patient->id;
+        $testName = $test_name;
+
+        $results = TestResult::where('patient_id', $patientId)
+            ->where('test_name', $testName)
+            ->select('question', 'answer', 'result', 'result_description')
+            ->get();
+
+        if ($results->isEmpty()) {
+            return response()->json(['message' => 'لا توجد نتائج'], 404);
+        }
+
+        $answers = [];
+        $resultValue = null;
+
+        foreach ($results as $row) {
+            $answers[] = [$row->question => $row->answer];
+            $resultValue = $row->result;
+            $resultDescValue = $row->result_description;
+        }
+
+        return response()->json([
+            'patient_id' => $patientId,
+            'test_name' => $testName,
+            'result' => $resultValue,
+            'result_description' => $resultDescValue,
+            'answers' => $answers
+        ]);
     }
 }
