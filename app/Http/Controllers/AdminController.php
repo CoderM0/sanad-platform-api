@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\DocPatientsResource;
 use App\Http\Resources\DoctorResource;
+use App\Http\Resources\FinancialRecordResource;
 use App\Http\Resources\PatientResource;
 use App\Models\ContactInfo;
 use App\Models\Doctor;
+use App\Models\FinancialRecord;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -198,5 +200,10 @@ class AdminController extends Controller
     {
         $contact->delete();
         return response()->json(['message' => 'تم الحذف بنجاح']);
+    }
+    public function get_financial_records()
+    {
+        $finance_records = FinancialRecord::all();
+        return FinancialRecordResource::collection($finance_records);
     }
 }

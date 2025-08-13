@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\MdSessionResource;
+
 use App\Models\Doctor;
+use App\Models\FinancialRecord;
 use App\Models\MdSession;
-use App\Models\Patient;
-use App\Models\User;
+
 use App\Notifications\NewAppointmentRequested;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -18,7 +18,8 @@ class MdSessionController extends Controller
     {
         $validated = $request->validate([
             'doctor_id' => 'required|exists:doctors,id',
-
+            'card_num' => 'required|digits:11',
+            'amount' => 'required|integer',
             'scheduled_at' => 'required|date|after:now',
         ]);
 
@@ -63,6 +64,15 @@ class MdSessionController extends Controller
             'doctor_id' => $validated['doctor_id'],
             'scheduled_at' => $scheduledAt,
             'status' => "pending"
+        ]);
+        FinancialRecord::create([
+            'patient_id' => Auth::user()->patient->id,
+            'doctor_id' => $validated['doctor_id'],
+            'reservation_date' => $scheduledAt,
+            'status' => "unpaid",
+            'card_number' => $validated['card_num'],
+            'amount' => $validated['amount'],
+            'md_session_id' => $md_session->id
         ]);
         $doctor = Doctor::find($validated['doctor_id']);
         $doctor->user->notify(new NewAppointmentRequested($md_session));

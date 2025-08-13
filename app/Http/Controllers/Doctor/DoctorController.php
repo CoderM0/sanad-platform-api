@@ -7,6 +7,7 @@ use App\Http\Resources\DoctorResource;
 use App\Http\Resources\MdSessionResource;
 use App\Http\Resources\PatientResource;
 use App\Http\Resources\RatingResource;
+use App\Models\FinancialRecord;
 use App\Models\MdSession;
 use App\Models\Patient;
 use App\Models\TestResult;
@@ -40,6 +41,8 @@ class DoctorController extends Controller
             $md_session->update(['status' => 'accepted']);
             $patient = Patient::find($md_session->patient_id);
             $patient->user->notify(new SessionStatusNotification($md_session, " قبولها"));
+            $f_record = FinancialRecord::where('md_session_id', $md_session->id)->first();
+            $f_record->update(['status' => 'paid']);
             return response()->json(['message' => 'تم قبول الموعد بنجاح ']);
         }
     }
@@ -47,9 +50,12 @@ class DoctorController extends Controller
     {
         $doctor = Auth::user()->doctor;
         $md_session = MdSession::find($session_id);
+
         if ($doctor->id != $md_session->doctor_id) {
             abort(403, 'لا يمكنك رفض جلسة ليست من جلساتك ');
         } else {
+            $f_record = FinancialRecord::where('md_session_id', $md_session->id)->first();
+            $f_record->delete();
             $tmp_md_session = $md_session;
             $md_session->delete();
             $patient = Patient::find($md_session->patient_id);
@@ -67,7 +73,8 @@ class DoctorController extends Controller
             $request->validate([
                 'new_date' => 'date|after:now'
             ]);
-
+            $f_record = FinancialRecord::where('md_session_id', $md_session->id)->first();
+            $f_record->update(['reservation_date' => $request->new_date]);
             $md_session->update(['status' => 'accepted', 'scheduled_at' => $request->new_date]);
             $patient = Patient::find($md_session->patient_id);
             $patient->user->notify(new SessionStatusNotification($md_session, " قبولها وتعديل الموعد الى {$request->new_date}"));
