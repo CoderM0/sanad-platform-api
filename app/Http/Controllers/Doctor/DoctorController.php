@@ -165,11 +165,14 @@ class DoctorController extends Controller
         $doctor_id = Auth::user()->doctor->id;
         $request->validate([
             'blog_title' => 'required|string',
+            'blog_img' => 'required|image',
             'first_section_title' => 'required|string',
             'first_section_text' => 'required|string',
         ]);
+        $blog_img_path = Storage::disk("public")->put("/blogs", $request->file("blog_img"));
         $blog = Blog::create([
             'doctor_id' => $doctor_id,
+            'blog_img' => $blog_img_path,
             "title" => $request->blog_title
         ]);
         Section::create([

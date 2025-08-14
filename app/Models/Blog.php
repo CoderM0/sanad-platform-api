@@ -11,4 +11,8 @@ class Blog extends Model
     {
         return $this->hasMany(Section::class);
     }
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
+    }
 }
