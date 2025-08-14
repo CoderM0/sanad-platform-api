@@ -3,13 +3,16 @@
 namespace App\Http\Controllers\Doctor;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BlogResource;
 use App\Http\Resources\DoctorResource;
 use App\Http\Resources\MdSessionResource;
 use App\Http\Resources\PatientResource;
 use App\Http\Resources\RatingResource;
+use App\Models\Blog;
 use App\Models\FinancialRecord;
 use App\Models\MdSession;
 use App\Models\Patient;
+use App\Models\Section;
 use App\Models\TestResult;
 use App\Models\User;
 use App\Notifications\SessionStatusNotification;
@@ -156,5 +159,41 @@ class DoctorController extends Controller
             'result_description' => $result_description,
             'answers' => $answers
         ]);
+    }
+    public function add_blog(Request $request)
+    {
+        $doctor_id = Auth::user()->doctor->id;
+        $request->validate([
+            'blog_title' => 'required|string',
+            'first_section_title' => 'required|string',
+            'first_section_text' => 'required|string',
+        ]);
+        $blog = Blog::create([
+            'doctor_id' => $doctor_id,
+            "title" => $request->blog_title
+        ]);
+        Section::create([
+            'blog_id' => $blog->id,
+            'section_title' => $request->first_section_title,
+            'section_text' => $request->first_section_text
+        ]);
+        return response()->json(['message' => 'تم انشاء المدونة بنجاح', 'blog' => $blog]);
+    }
+    public function add_section(Request $request, $blog_id)
+    {
+        $request->validate([
+            'section_title' => 'required|string',
+            'section_text' => 'required|string',
+        ]);
+        Section::create([
+            'blog_id' => $blog_id,
+            'section_title' => $request->section_title,
+            'section_text' => $request->section_text,
+        ]);
+        return response()->json(['message' => 'تم الاضافة بنجاح']);
+    }
+    public function get_blog_info(Blog $blog)
+    {
+        return new BlogResource($blog);
     }
 }

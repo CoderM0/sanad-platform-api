@@ -16,8 +16,8 @@ class FinancialRecordResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'patient' => $this->patient ? new PatientResource($this->patient) : "حساب محذوف",
-            'doctor' => $this->doctor ? new DoctorResource($this->doctor) : "حساب محذوف",
+            'patient' => $this->patient ? new PatientResource($this->patient) : null,
+            'doctor' => $this->doctor ? new DoctorResource($this->doctor) : null,
             'card_number' => $this->card_number,
             'amount' => $this->amount,
             'reservation_date' => $this->reservation_date,

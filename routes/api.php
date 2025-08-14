@@ -6,6 +6,8 @@ use App\Http\Controllers\MdSessionController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Patient\PatientController;
 use App\Http\Controllers\RatingController;
+use App\Http\Resources\BlogResource;
+use App\Models\Blog;
 use App\Models\ContactInfo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -47,9 +49,15 @@ Route::middleware(['auth:sanctum', 'role:doctor'])->prefix("/doctor")->group(fun
     Route::post('/sessions/{session_id}/modify', [DoctorController::class, 'change_session_time']);
     Route::get('/patients', [DoctorController::class, 'my_patients']);
     Route::get('/patients/{patient_id}/{test_name}/show', [DoctorController::class, 'getTestResults']);
+    Route::post("/blogs/add", [DoctorController::class, 'add_blog']);
+    Route::post("/blogs/{blog_id}/sections/add", [DoctorController::class, 'add_section']);
+    Route::get("/blogs/{blog}/sections/get", [DoctorController::class, 'get_blog_info']);
 });
 Route::get("/contacts/all", function () {
     return response()->json(['contacts' => ContactInfo::all()]);
+});
+Route::get("/blogs/all", function () {
+    return BlogResource::collection(Blog::all());
 });
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('/admin')->group(function () {
     Route::get("/doctors", [AdminController::class, 'get_all_doctors']);
