@@ -12,6 +12,7 @@ use App\Models\FinancialRecord;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -205,5 +206,41 @@ class AdminController extends Controller
     {
         $finance_records = FinancialRecord::all();
         return FinancialRecordResource::collection($finance_records);
+    }
+    public function update_info(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+        $validatedUser = $request->validate([
+            'first_name' => 'nullable|string|max:255',
+            'last_name' => 'nullable|string|max:255',
+            'password' => ['nullable', Password::defaults()],
+            'email' => [
+                'nullable',
+                'string',
+                'email',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'email.email' => 'البريد الإلكتروني غير صالح.',
+            'email.unique' => 'هذا البريد مستخدم مسبقاً.',
+            'avatar.image' => 'الصورة يجب أن تكون من نوع صورة.',
+        ]);
+        if ($request->hasFile('avatar')) {
+            if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
+                Storage::disk('public')->delete($user->avatar);
+            }
+
+            $path = Storage::disk('public')->put('/users', $request->file('avatar'));
+            $validatedUser['avatar'] = $path;
+        }
+        if ($request->has("password")) {
+            $validatedUser['password'] = Hash::make($request->string('password'));
+        }
+        $user->update($validatedUser);
+        return response()->json([
+            'message' => 'تم تحديث المعلومات بنجاح.',
+            'user' => $user
+        ]);
     }
 }

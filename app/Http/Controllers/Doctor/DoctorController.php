@@ -124,10 +124,10 @@ class DoctorController extends Controller
             'doctor' => new DoctorResource($doctor)
         ]);
     }
-    public function getTestResults($patient_id, $test_name)
+    public function getTestResults($patient_id, $test_id)
     {
         $patientId = $patient_id;
-        $testName = $test_name;
+
 
         $doctor = Auth::user()->doctor;
         $exists = $doctor->patients()->where('patients.id', $patient_id)->exists();
@@ -135,8 +135,8 @@ class DoctorController extends Controller
             return response()->json(['message' => 'لا تملك صلاحية عرض اختبارات احد المرضى ما لم يكن احد مرضاك']);
         }
         $results = TestResult::where('patient_id', $patientId)
-            ->where('test_name', $testName)
-            ->select('question', 'answer', 'result', 'result_description')
+            ->where('test_id', $test_id)
+            ->select('question', 'test_name', 'answer', 'result', 'result_description')
             ->get();
 
         if ($results->isEmpty()) {
@@ -154,7 +154,7 @@ class DoctorController extends Controller
 
         return response()->json([
             'patient_id' => $patientId,
-            'test_name' => $testName,
+            'test_name' => $results[0]->test_name,
             'result' => $resultValue,
             'result_description' => $result_description,
             'answers' => $answers

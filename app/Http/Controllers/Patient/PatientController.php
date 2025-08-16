@@ -137,6 +137,7 @@ class PatientController extends Controller
     public function storeTestResults(Request $request)
     {
         $testName = $request->input('test_name');
+        $test_id = $request->input('test_id');
         $result = $request->input('result');
         $result_description = $request->input('result_desc');
         $answers = $request->input('answers');
@@ -147,6 +148,7 @@ class PatientController extends Controller
             foreach ($qa as $question => $answer) {
                 $data[] = [
                     'test_name' => $testName,
+                    'test_id' => $test_id,
                     'patient_id' => Auth::user()->id,
                     'question' => $question,
                     'answer' => $answer,
@@ -160,20 +162,20 @@ class PatientController extends Controller
 
         DB::table('test_results')->upsert(
             $data,
-            ['patient_id', 'test_name', 'question'],
-            ['answer', 'result', 'result_description', 'updated_at']
+            ['patient_id', 'test_id', 'question'],
+            ['answer', 'test_name', 'result', 'result_description', 'updated_at']
         );
 
         return response()->json(['message' => 'تم الحفظ بنجاح']);
     }
-    public function getTestResults($test_name)
+    public function getTestResults($test_id)
     {
         $patientId = Auth::user()->patient->id;
-        $testName = $test_name;
+
 
         $results = TestResult::where('patient_id', $patientId)
-            ->where('test_name', $testName)
-            ->select('question', 'answer', 'result', 'result_description')
+            ->where('test_id', $test_id)
+            ->select('question', 'answer', 'test_name', 'result', 'result_description')
             ->get();
 
         if ($results->isEmpty()) {
@@ -191,7 +193,7 @@ class PatientController extends Controller
 
         return response()->json([
             'patient_id' => $patientId,
-            'test_name' => $testName,
+            'test_name' => $results[0]->test_name,
             'result' => $resultValue,
             'result_description' => $resultDescValue,
             'answers' => $answers

@@ -25,7 +25,7 @@ Route::middleware(['auth:sanctum', 'role:patient'])->prefix("/patient")->group(f
     Route::post("/ratings/add", [PatientController::class, 'add_rate']);
     Route::get('/ratings', [RatingController::class, 'my_ratings']);
     Route::post('/tests/store', [PatientController::class, 'storeTestResults']);
-    Route::get('/tests/{test_name}/show', [PatientController::class, 'getTestResults']);
+    Route::get('/tests/{test_id}/show', [PatientController::class, 'getTestResults']);
 });
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/doctor/{doctor_id}/ratings', [RatingController::class, 'doctor_ratings']);
@@ -48,7 +48,7 @@ Route::middleware(['auth:sanctum', 'role:doctor'])->prefix("/doctor")->group(fun
     Route::post('/sessions/{session_id}/decline', [DoctorController::class, 'decline_session']);
     Route::post('/sessions/{session_id}/modify', [DoctorController::class, 'change_session_time']);
     Route::get('/patients', [DoctorController::class, 'my_patients']);
-    Route::get('/patients/{patient_id}/{test_name}/show', [DoctorController::class, 'getTestResults']);
+    Route::get('/patients/{patient_id}/{test_id}/show', [DoctorController::class, 'getTestResults']);
     Route::post("/blogs/add", [DoctorController::class, 'add_blog']);
     Route::post("/blogs/{blog_id}/sections/add", [DoctorController::class, 'add_section']);
     Route::get("/blogs/{blog}/sections/get", [DoctorController::class, 'get_blog_info']);
@@ -70,6 +70,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('/admin')->group(funct
     Route::put("/contacts/{contact}/update", [AdminController::class, 'edit_contact']);
     Route::delete("/contacts/{contact}/delete", [AdminController::class, 'delete_contact']);
     Route::get("/finance", [AdminController::class, 'get_financial_records']);
+    Route::post("/profile/update", [AdminController::class, 'update_info']);
 });
 
 

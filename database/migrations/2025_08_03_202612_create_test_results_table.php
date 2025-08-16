@@ -16,12 +16,13 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Patient::class)->constrained()->cascadeOnDelete();
             $table->string('test_name');
+            $table->string('test_id');
             $table->string('question');
             $table->string('answer');
             $table->string('result')->nullable();
             $table->string('result_description');
             $table->timestamps();
-            $table->unique(['patient_id', 'test_name', 'question']);
+            $table->unique(['patient_id', 'test_id', 'question']);
         });
     }
 
