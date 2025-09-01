@@ -71,6 +71,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('/admin')->group(funct
     Route::delete("/contacts/{contact}/delete", [AdminController::class, 'delete_contact']);
     Route::get("/finance", [AdminController::class, 'get_financial_records']);
     Route::post("/profile/update", [AdminController::class, 'update_info']);
+    Route::get("/patients/all", [AdminController::class, 'get_all_patients']);
 });
 
 

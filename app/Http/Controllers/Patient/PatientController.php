@@ -197,6 +197,6 @@ class PatientController extends Controller
             'result' => $resultValue,
             'result_description' => $resultDescValue,
             'answers' => $answers
-        ]);
+        ], 200);
     }
 }

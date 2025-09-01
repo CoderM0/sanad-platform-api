@@ -9,6 +9,7 @@ use App\Http\Resources\PatientResource;
 use App\Models\ContactInfo;
 use App\Models\Doctor;
 use App\Models\FinancialRecord;
+use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
@@ -242,5 +243,9 @@ class AdminController extends Controller
             'message' => 'تم تحديث المعلومات بنجاح.',
             'user' => $user
         ]);
+    }
+    public function get_all_patients()
+    {
+        return PatientResource::collection(Patient::all());
     }
 }
