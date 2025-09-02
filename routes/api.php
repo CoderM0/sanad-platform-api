@@ -72,6 +72,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('/admin')->group(funct
     Route::get("/finance", [AdminController::class, 'get_financial_records']);
     Route::post("/profile/update", [AdminController::class, 'update_info']);
     Route::get("/patients/all", [AdminController::class, 'get_all_patients']);
+    Route::get("/sessions/all", [AdminController::class, 'get_all_sessions']);
 });
 
 

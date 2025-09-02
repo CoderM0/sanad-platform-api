@@ -5,10 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Resources\DocPatientsResource;
 use App\Http\Resources\DoctorResource;
 use App\Http\Resources\FinancialRecordResource;
+use App\Http\Resources\MdSessionResource;
 use App\Http\Resources\PatientResource;
 use App\Models\ContactInfo;
 use App\Models\Doctor;
 use App\Models\FinancialRecord;
+use App\Models\MdSession;
 use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -247,5 +249,10 @@ class AdminController extends Controller
     public function get_all_patients()
     {
         return PatientResource::collection(Patient::all());
+    }
+    public function get_all_sessions()
+    {
+
+        return MdSessionResource::collection(MdSession::all());
     }
 }
