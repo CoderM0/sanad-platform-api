@@ -52,6 +52,7 @@ Route::middleware(['auth:sanctum', 'role:doctor'])->prefix("/doctor")->group(fun
     Route::post("/blogs/add", [DoctorController::class, 'add_blog']);
     Route::post("/blogs/{blog_id}/sections/add", [DoctorController::class, 'add_section']);
     Route::get("/blogs/{blog}/sections/get", [DoctorController::class, 'get_blog_info']);
+    Route::get("/blogs/doctor/{doctor}/view", [DoctorController::class, 'get_doc_blogs']);
 });
 Route::get("/contacts/all", function () {
     return response()->json(['contacts' => ContactInfo::all()]);
@@ -73,6 +74,7 @@ Route::middleware(['auth:sanctum', 'role:admin'])->prefix('/admin')->group(funct
     Route::post("/profile/update", [AdminController::class, 'update_info']);
     Route::get("/patients/all", [AdminController::class, 'get_all_patients']);
     Route::get("/sessions/all", [AdminController::class, 'get_all_sessions']);
+    Route::get("/blogs/doctor/{doctor}/view", [AdminController::class, 'get_doc_blogs']);
 });
 
 

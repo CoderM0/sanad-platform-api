@@ -9,6 +9,7 @@ use App\Http\Resources\MdSessionResource;
 use App\Http\Resources\PatientResource;
 use App\Http\Resources\RatingResource;
 use App\Models\Blog;
+use App\Models\Doctor;
 use App\Models\FinancialRecord;
 use App\Models\MdSession;
 use App\Models\Patient;
@@ -198,5 +199,10 @@ class DoctorController extends Controller
     public function get_blog_info(Blog $blog)
     {
         return new BlogResource($blog);
+    }
+    public function get_doc_blogs(Doctor $doctor)
+    {
+
+        return BlogResource::collection($doctor->blogs);
     }
 }

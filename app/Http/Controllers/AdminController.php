@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\BlogResource;
 use App\Http\Resources\DocPatientsResource;
 use App\Http\Resources\DoctorResource;
 use App\Http\Resources\FinancialRecordResource;
@@ -254,5 +255,10 @@ class AdminController extends Controller
     {
 
         return MdSessionResource::collection(MdSession::all());
+    }
+    public function get_doc_blogs(Doctor $doctor)
+    {
+
+        return BlogResource::collection($doctor->blogs);
     }
 }
