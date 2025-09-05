@@ -7,8 +7,10 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Patient\PatientController;
 use App\Http\Controllers\RatingController;
 use App\Http\Resources\BlogResource;
+use App\Http\Resources\DoctorResource;
 use App\Models\Blog;
 use App\Models\ContactInfo;
+use App\Models\Doctor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -59,6 +61,9 @@ Route::get("/contacts/all", function () {
 });
 Route::get("/blogs/all", function () {
     return BlogResource::collection(Blog::all());
+});
+Route::get("/doctors/all", function () {
+    return DoctorResource::collection(Doctor::all());
 });
 Route::middleware(['auth:sanctum', 'role:admin'])->prefix('/admin')->group(function () {
     Route::get("/doctors", [AdminController::class, 'get_all_doctors']);
